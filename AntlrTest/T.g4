@@ -1,11 +1,37 @@
 grammar T;
 
-expr : ID | INT ;
+line
+  : expr + EOF
+  ;
+  
+expr 
+  : PROP OP VALUE
+  | PROP OP VALUE LOGOP expr
+  ;
 
-ID : [a-zA-Z_]+ [a-zA-Z0-9_]* ;
+OP : 'eq'
+   | 'gte'
+   ;
 
-INT : [0-9]+ ;
+LOGOP : 'and'
+      | 'or'
+      | 'xor'
+      ;
 
-COMMET : '/*' .*? '*/' -> channel(HIDDEN) ;
+VALUE : STRING | POSITIVE | NEGATIVE | BOOL ;
+
+BOOL : TRUE | FALSE ;
+
+TRUE : 'true';
+
+FALSE : 'false';
+
+PROP : [a-zA-Z_]+ [a-zA-Z0-9_-]* ;
+
+STRING : '"' [a-zA-Z_-]+ [a-zA-Z0-9_-]* '"' ;
+
+POSITIVE : [0-9]+ [0-9]* ;
+
+NEGATIVE : '-' [0-9]+ [0-9]* ;
 
 WS : [ \t\n\r]+ -> skip ;
