@@ -19,7 +19,7 @@ public class MyTVisitor : TBaseVisitor<string>
 
         return logop == null
             ? $"{prop} {op} {value}"
-            : HandleGroup(context.LOGOP(), context.expr()); 
+            : HandleGroup(context.expr()); 
         
         if (logop is not null)
         {
@@ -41,9 +41,9 @@ public class MyTVisitor : TBaseVisitor<string>
         return result += $"{prop} {op} {value}";
     }
 
-    private string HandleGroup(ITerminalNode logop, TParser.ExprContext expr)
+    private string HandleGroup(TParser.ExprContext expr)
     {
-        expr.
-        return $"{logop} {expr.PROP()} {expr.OP()} {expr.VALUE()}";
+        result += expr.children.OfType<TParser.ExprContext>().Select(HandleGroup);
+        return string.Join("->", expr.children.Where(c => c is ITerminalNode).Select(c => c.GetText())) + result;
     }
 }

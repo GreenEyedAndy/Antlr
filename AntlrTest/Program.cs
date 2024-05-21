@@ -11,17 +11,27 @@ class Program
         CallExpr();
         CallAddition();
         CallT();
+        CallCsv();
         //Console.WriteLine(output);
+    }
+
+    private static void CallCsv()
+    {
+        string input = "[2.5,65,7.3g]";
+        ITokenSource lexer = new csvLexer(CharStreams.fromString(input));
+        csvParser parser = new csvParser(new CommonTokenStream(lexer));
+        var str = new PrettyVisitor().Visit(parser.list());
+        Console.WriteLine(str);
     }
 
     private static void CallT()
     {
-        // string input = """
-        //                name eq "Andy" or name eq "Igor" and age gte 46 or age eq -19 and test eq true
-        //                """;
         string input = """
-                       name eq "Andy" or name eq "Igor"
+                       name eq "Andy" or name eq "Igor" and age gte 46 or age eq -19 and test eq true
                        """;
+        // string input = """
+        //                name eq "Andy" or name eq "Igor"
+        //                """;
         ITokenSource lexer = new TLexer(CharStreams.fromString(input));
         TParser parser = new TParser(new CommonTokenStream(lexer));
         IParseTree tree = parser.line();
@@ -52,6 +62,7 @@ class Program
         ITokenSource lexer = new ExprLexer(stream);
         ITokenStream tokens = new CommonTokenStream(lexer);
         ExprParser parser = new ExprParser(tokens);
+        parser.BuildParseTree = true;
         IParseTree tree = parser.program();
         Calculator calculator = new Calculator();
         var output = calculator.Visit(tree);
