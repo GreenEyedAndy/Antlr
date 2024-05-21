@@ -1,16 +1,26 @@
 grammar T;
 
 line
-  : expr + EOF
+  : elems? EOF
+  ;
+  
+elems
+  : expr ( LOGOP expr )*
   ;
   
 expr 
   : PROP OP VALUE
-  | PROP OP VALUE LOGOP expr
   ;
 
 OP : 'eq'
+   | 'gt'
+   | 'lt'
    | 'gte'
+   | 'lte'
+   | 'in'
+   | 'ne'
+   | 'nin'
+   | 'regex'
    ;
 
 LOGOP : 'and'
@@ -28,7 +38,7 @@ FALSE : 'false';
 
 PROP : [a-zA-Z_]+ [a-zA-Z0-9_-]* ;
 
-STRING : '"' [a-zA-Z_-]+ [a-zA-Z0-9_-]* '"' ;
+STRING : '"' .+? '"' ;
 
 POSITIVE : [0-9]+ [0-9]* ;
 

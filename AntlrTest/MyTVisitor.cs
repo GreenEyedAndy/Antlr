@@ -5,45 +5,40 @@ namespace AntlrTest;
 public class MyTVisitor : TBaseVisitor<string>
 {
     private string result = string.Empty;
+
     public override string VisitLine(TParser.LineContext context)
     {
-        return result + Visit(context.expr(0));
+        return context.elems() == null ? "" : "[ " + VisitElems(context.elems()) + " ]";
+    }
+
+    public override string VisitElems(TParser.ElemsContext context)
+    {
+        string str = VisitExpr(context.expr()[0]);
+        for (int i = 1; i < context.expr().Length; i++)
+        {
+            str += $" {context.LOGOP().GetValue(i-1)} " + VisitExpr(context.expr()[i]);
+        }
+        return str;
     }
 
     public override string VisitExpr(TParser.ExprContext context)
     {
-        var prop = context.PROP();
-        var op = context.OP();
-        var value = context.VALUE();
-        var logop = context.LOGOP();
-
-        return logop == null
-            ? $"{prop} {op} {value}"
-            : HandleGroup(context.expr()); 
-        
-        if (logop is not null)
-        {
-            var logicOperator = logop.GetText();
-            switch (logicOperator)
-            {
-                case "and":
-                    result += "and " + Visit(context.expr());
-                    break;
-                case "or":
-                    result += "or " + Visit(context.expr());
-                    break;
-                case "xor":
-                    result += "xor " + Visit(context.expr());
-                    break;
-            }
-        }
-            
-        return result += $"{prop} {op} {value}";
-    }
-
-    private string HandleGroup(TParser.ExprContext expr)
-    {
-        result += expr.children.OfType<TParser.ExprContext>().Select(HandleGroup);
-        return string.Join("->", expr.children.Where(c => c is ITerminalNode).Select(c => c.GetText())) + result;
+        // if (context.STRING() is not null)
+        // {
+        //     return $"{context.PROP()} {context.OP()} {context.STRING()}";
+        // }
+        // if (context.POSITIVE() is not null)
+        // {
+        //     return $"{context.PROP()} {context.OP()} {context.POSITIVE()}";
+        // }
+        // if (context.NEGATIVE() is not null)
+        // {
+        //     return $"{context.PROP()} {context.OP()} {context.NEGATIVE()}";
+        // }
+        // if (context.BOOL() is not null)
+        // {
+        //     return $"{context.PROP()} {context.OP()} {context.BOOL()}";
+        // }
+        return $"{context.PROP()} {context.OP()} {context.VALUE()}";
     }
 }

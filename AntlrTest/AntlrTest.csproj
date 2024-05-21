@@ -9,6 +9,7 @@
 
     <ItemGroup>
       <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+      <PackageReference Include="MongoDB.Driver" Version="2.25.0" />
     </ItemGroup>
 
 </Project>

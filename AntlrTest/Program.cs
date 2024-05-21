@@ -26,17 +26,16 @@ class Program
 
     private static void CallT()
     {
-        string input = """
-                       name eq "Andy" or name eq "Igor" and age gte 46 or age eq -19 and test eq true
-                       """;
         // string input = """
-        //                name eq "Andy" or name eq "Igor"
+        //                name eq "Andy" or name eq "Igor" and age gte 46 or age eq -19 and test eq true
         //                """;
+        string input = """
+                       name eq "Andy"
+                       """;
         ITokenSource lexer = new TLexer(CharStreams.fromString(input));
         TParser parser = new TParser(new CommonTokenStream(lexer));
-        IParseTree tree = parser.line();
-        var visitor = new MyTVisitor();
-        Console.WriteLine(visitor.Visit(tree));
+        var str = new MyTVisitor().Visit(parser.line());
+        Console.WriteLine(str);
     }
 
     private static void CallAddition()
