@@ -26,16 +26,23 @@ class Program
 
     private static void CallT()
     {
-        // string input = """
-        //                name eq "Andy" or name eq "Igor" and age gte 46 or age eq -19 and test eq true
-        //                """;
         string input = """
-                       name eq "Andy"
+                       name eq "Andy" or name eq "Igor" and age gte 46 and test eq true
                        """;
+        // string input = """
+        //                name lt 2023-07-19T14:35:31.347Z
+        //                """;
+        // string input = """
+        //                name eq 123
+        //                """;
+        // string input = """
+        //                flag eq true
+        //                """;
         ITokenSource lexer = new TLexer(CharStreams.fromString(input));
         TParser parser = new TParser(new CommonTokenStream(lexer));
-        var str = new MyTVisitor().Visit(parser.line());
-        Console.WriteLine(str);
+        //var str = new MyTVisitor().Visit(parser.line());
+        var str = new BsonDocumentTVisitor().Visit(parser.line());
+        Console.WriteLine(str.ToString());
     }
 
     private static void CallAddition()
