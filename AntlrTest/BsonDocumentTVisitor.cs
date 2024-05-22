@@ -15,21 +15,21 @@ public class BsonDocumentTVisitor : TBaseVisitor<BsonDocument>
         {
             return VisitExpr(context.expr()[0]);
         }
-        var index = -2;
-        
-        return context.expr().Aggregate(new BsonDocument(), (document, exprContext) =>
+    
+        // Initialisiere das Dokument mit dem Ergebnis des ersten Ausdrucks
+        var document = VisitExpr(context.expr()[0]);
+    
+        for (int i = 1; i < context.expr().Length; i++)
         {
-            if (index++ == -2)
-            {
-                return VisitExpr(exprContext);
-            }
-            var bsonDocument = VisitExpr(exprContext);
-            var logop = $"${context.LOGOP().GetValue(index)}";
+            var bsonDocument = VisitExpr(context.expr()[i]);
+            var logop = $"${context.LOGOP(i - 1).GetText()}";
             var bsonArray = new BsonArray { document, bsonDocument };
-            var returnDocument = new BsonDocument(logop, bsonArray);
-            return returnDocument;
-        });
-    } 
+            document = new BsonDocument(logop, bsonArray);
+        }
+    
+        return document;
+    }
+
     public override BsonDocument VisitExpr(TParser.ExprContext context)
     {
         string prop = context.PROP().GetText();
