@@ -40,7 +40,7 @@ class Program
     private static void CallT()
     {
         string input = """
-                       name eq "Andy" or (name eq "Igor" and age gte 46 and flag eq true)
+                       name eq Andy or (name eq "Igor" and age gte 0.46 and flag eq true) or lastModified lt 2023-07-19T14:35:31.347Z
                        """;
         // string input = """
         //                name lt 2023-07-19T14:35:31.347Z

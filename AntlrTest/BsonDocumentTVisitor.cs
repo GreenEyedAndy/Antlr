@@ -31,7 +31,7 @@ namespace AntlrTest
         public override BsonDocument VisitComparison(TParser.ComparisonContext context)
         {
             string prop = context.IDENTIFIER().GetText();
-            string op = $"${context.op().GetText()}";
+            string op = $"${context.OP().GetText()}";
             string value = context.value().GetText();
 
             if (int.TryParse(value, out int intValue))

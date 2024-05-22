@@ -1,16 +1,19 @@
-grammar T;
+grammar Better;
 
-parse
-    : expr EOF
+expression
+    : logicalExpression
     ;
 
-expr
-    : expr LOGOP expr   # LogicalOperation
-    | '(' expr ')'      # ParenthesizedExpression
-    | comparison        # ComparisonExpression
+logicalExpression
+    : logicalTerm ( ( LOGOP ) logicalTerm )*
     ;
 
-comparison
+logicalTerm
+    : '(' logicalExpression ')'
+    | condition
+    ;
+
+condition
     : IDENTIFIER OP value
     ;
 
@@ -37,11 +40,6 @@ LOGOP
     ;
 
 
-BOOLEAN
-    : 'true' 
-    | 'false' 
-    ;
-
 IDENTIFIER
     : [a-zA-Z_][a-zA-Z_]+ 
     ;
@@ -58,6 +56,11 @@ NUMBER
     : '-'? INT ('.' [0-9]+)? 
     ;
     
+BOOLEAN
+    : 'true' 
+    | 'false' 
+    ;
+
 fragment INT: '0' | [1-9] [0-9]* ;
 fragment DIGIT: [0-9] ;
 
