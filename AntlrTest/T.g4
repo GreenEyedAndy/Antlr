@@ -1,49 +1,56 @@
 grammar T;
 
-line
-  : elems? EOF
-  ;
-  
-elems
-  : expr ( LOGOP expr )*
-  ;
-  
-expr 
-  : PROP OP VALUE
-  ;
+parse
+    : expr EOF
+    ;
 
-OP : 'eq'
-   | 'gt'
-   | 'lt'
-   | 'gte'
-   | 'lte'
-   | 'in'
-   | 'ne'
-   | 'nin'
-   | 'regex'
-   ;
+expr
+    : expr LOGOP expr   # LogicalOperation
+    | '(' expr ')'      # ParenthesizedExpression
+    | comparison        # ComparisonExpression
+    ;
 
-LOGOP : 'and'
-      | 'or'
-      | 'xor'
-      ;
+comparison
+    : IDENTIFIER op value
+    ;
 
-VALUE : STRING | POSITIVE | NEGATIVE | BOOL | TIMESTAMP;
+op
+    : 'eq'
+    | 'neq'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    ;
 
-BOOL : TRUE | FALSE ;
+value
+    : STRING
+    | NUMBER
+    | BOOLEAN
+    ;
 
-TRUE : 'true';
+LOGOP
+    : 'and'
+    | 'or'
+    ;
 
-FALSE : 'false';
+BOOLEAN
+    : 'true'
+    | 'false'
+    ;
 
-TIMESTAMP : [0-9]+ [0-9-:.TZ]* ; 
+IDENTIFIER
+    : [a-zA-Z_][a-zA-Z_0-9]*
+    ;
 
-STRING : '"' .+? '"' ;
+STRING
+    : '"' (~["\\] | '\\' .)* '"'
+    ;
 
-POSITIVE : [0-9]+ [0-9]* ;
+NUMBER
+    : [0-9]+ ('.' [0-9]+)?
+    ;
 
-NEGATIVE : '-' [0-9]+ [0-9]* ;
-
-PROP : [a-zA-Z_]+ [a-zA-Z0-9_-]* ;
-
-WS : [ \t\n\r]+ -> skip ;
+WS
+    : [ \t\r\n]+ -> skip
+    ;

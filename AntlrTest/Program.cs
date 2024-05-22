@@ -40,7 +40,7 @@ class Program
     private static void CallT()
     {
         string input = """
-                       name eq "Andy" or name eq "Igor" and age gte 46
+                       name eq "Andy" or (name eq "Igor" and age gte 46 and flag eq true)
                        """;
         // string input = """
         //                name lt 2023-07-19T14:35:31.347Z
@@ -54,7 +54,7 @@ class Program
         ITokenSource lexer = new TLexer(CharStreams.fromString(input));
         TParser parser = new TParser(new CommonTokenStream(lexer));
         //var str = new MyTVisitor().Visit(parser.line());
-        var str = new BsonDocumentTVisitor().Visit(parser.line());
+        var str = new BsonDocumentTVisitor().Visit(parser.parse());
         Console.WriteLine(str.ToString());
     }
 

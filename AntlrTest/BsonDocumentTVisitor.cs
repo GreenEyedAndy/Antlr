@@ -1,59 +1,53 @@
 ﻿using MongoDB.Bson;
 
-namespace AntlrTest;
-
-public class BsonDocumentTVisitor : TBaseVisitor<BsonDocument>
+namespace AntlrTest
 {
-    public override BsonDocument VisitLine(TParser.LineContext context)
+    public class BsonDocumentTVisitor : TBaseVisitor<BsonDocument>
     {
-        return context.elems() == null ? new BsonDocument() : VisitElems(context.elems());
-    }
+        public override BsonDocument VisitParse(TParser.ParseContext context)
+        {
+            return context.expr() == null ? new BsonDocument() : Visit(context.expr());
+        }
 
-    public override BsonDocument VisitElems(TParser.ElemsContext context)
-    {
-        if (context.expr().Length == 1)
+        public override BsonDocument VisitLogicalOperation(TParser.LogicalOperationContext context)
         {
-            return VisitExpr(context.expr()[0]);
+            var left = Visit(context.expr(0));
+            var right = Visit(context.expr(1));
+            var logop = $"${context.LOGOP().GetText()}";
+            var bsonArray = new BsonArray { left, right };
+            return new BsonDocument(logop, bsonArray);
         }
-    
-        // Initialisiere das Dokument mit dem Ergebnis des ersten Ausdrucks
-        var document = VisitExpr(context.expr()[0]);
-    
-        for (int i = 1; i < context.expr().Length; i++)
-        {
-            var bsonDocument = VisitExpr(context.expr()[i]);
-            var logop = $"${context.LOGOP(i - 1).GetText()}";
-            var bsonArray = new BsonArray { document, bsonDocument };
-            document = new BsonDocument(logop, bsonArray);
-        }
-    
-        return document;
-    }
 
-    public override BsonDocument VisitExpr(TParser.ExprContext context)
-    {
-        string prop = context.PROP().GetText();
-        string op = $"${context.OP()}";
-        string value = context.VALUE().GetText();
+        public override BsonDocument VisitParenthesizedExpression(TParser.ParenthesizedExpressionContext context)
+        {
+            return Visit(context.expr());
+        }
 
-        var bsonArray = new BsonArray();
-        
-        if (int.TryParse(value, out int intValue))
+        public override BsonDocument VisitComparisonExpression(TParser.ComparisonExpressionContext context)
         {
-            bsonArray.Add(new BsonDocument(prop, new BsonDocument(op, intValue)));
-            bsonArray.Add(new BsonDocument(prop, new BsonDocument(op, value)));
-            return new ("$or", bsonArray); 
+            return VisitComparison(context.comparison());
         }
-        if (DateTime.TryParse(value, out DateTime dateTimeValue))
+
+        public override BsonDocument VisitComparison(TParser.ComparisonContext context)
         {
-            return new BsonDocument(prop, new BsonDocument(op, dateTimeValue));
+            string prop = context.IDENTIFIER().GetText();
+            string op = $"${context.op().GetText()}";
+            string value = context.value().GetText();
+
+            if (int.TryParse(value, out int intValue))
+            {
+                return new BsonDocument(prop, new BsonDocument(op, intValue));
+            }
+
+            if (bool.TryParse(value, out bool boolValue))
+            {
+                return new BsonDocument(prop, new BsonDocument(op, boolValue));
+            }
+
+            // If the value is a string, it will be enclosed in double quotes
+            value = value.Trim('"');
+
+            return new BsonDocument(prop, new BsonDocument(op, value));
         }
-        if (bool.TryParse(value, out bool boolValue))
-        {
-            return new BsonDocument(prop, new BsonDocument(op, boolValue));
-        }
-        
-        // alles Andere
-        return new BsonDocument(prop, new BsonDocument(op, value.Replace("\"", "")));
     }
 }
