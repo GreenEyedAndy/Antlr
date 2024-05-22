@@ -12,7 +12,21 @@ class Program
         CallAddition();
         CallT();
         CallCsv();
+        CallCookie();
         //Console.WriteLine(output);
+    }
+
+    private static void CallCookie()
+    {
+        string input = "sessionToken=abc123; Expires=Wed, 09 Jun 2021 10:18:14 GMT";
+        ITokenSource lexer = new cookieLexer(CharStreams.fromString(input));
+        cookieParser parser = new cookieParser(new CommonTokenStream(lexer));
+        cookieParser.CookieContext cookieContext = parser.cookie();
+        TalkingListener listener = new TalkingListener();
+        //ParseTreeWalker.Default.Walk(listener, cookieContext);
+
+        CountVisitor visitor = new CountVisitor();
+        Console.WriteLine($"Number of nodes: {visitor.VisitCookie(cookieContext)}");
     }
 
     private static void CallCsv()
@@ -27,7 +41,7 @@ class Program
     private static void CallT()
     {
         string input = """
-                       name eq "Andy" or name eq "Igor" and age gte 46 and test eq true
+                       name eq "Andy" or name eq "Igor" and age gte 46
                        """;
         // string input = """
         //                name lt 2023-07-19T14:35:31.347Z
@@ -36,7 +50,7 @@ class Program
         //                name eq 123
         //                """;
         // string input = """
-        //                flag eq true
+        //                name eq "Andy" or name eq "Igor" and flag eq true and test eq true
         //                """;
         ITokenSource lexer = new TLexer(CharStreams.fromString(input));
         TParser parser = new TParser(new CommonTokenStream(lexer));

@@ -4,10 +4,6 @@ namespace AntlrTest;
 
 public class BsonDocumentTVisitor : TBaseVisitor<BsonDocument>
 {
-    private readonly BsonDocument filterDocument = new();
-    private readonly BsonArray exprFilters = new();
-    private readonly BsonArray elemsFilters = new();
-
     public override BsonDocument VisitLine(TParser.LineContext context)
     {
         return context.elems() == null ? new BsonDocument() : VisitElems(context.elems());
@@ -29,7 +25,8 @@ public class BsonDocumentTVisitor : TBaseVisitor<BsonDocument>
             }
             var bsonDocument = VisitExpr(exprContext);
             var logop = $"${context.LOGOP().GetValue(index)}";
-            var returnDocument = new BsonDocument(logop, new BsonArray { document, bsonDocument });
+            var bsonArray = new BsonArray { document, bsonDocument };
+            var returnDocument = new BsonDocument(logop, bsonArray);
             return returnDocument;
         });
     } 
@@ -38,14 +35,14 @@ public class BsonDocumentTVisitor : TBaseVisitor<BsonDocument>
         string prop = context.PROP().GetText();
         string op = $"${context.OP()}";
         string value = context.VALUE().GetText();
-        
-        exprFilters.Clear();
+
+        var bsonArray = new BsonArray();
         
         if (int.TryParse(value, out int intValue))
         {
-            exprFilters.Add(new BsonDocument(prop, new BsonDocument(op, intValue)));
-            exprFilters.Add(new BsonDocument(prop, new BsonDocument(op, value)));
-            return filterDocument.Add("$or", exprFilters); 
+            bsonArray.Add(new BsonDocument(prop, new BsonDocument(op, intValue)));
+            bsonArray.Add(new BsonDocument(prop, new BsonDocument(op, value)));
+            return new ("$or", bsonArray); 
         }
         if (DateTime.TryParse(value, out DateTime dateTimeValue))
         {
