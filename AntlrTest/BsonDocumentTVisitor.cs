@@ -43,6 +43,11 @@ namespace AntlrTest
             {
                 return new BsonDocument(prop, new BsonDocument(op, boolValue));
             }
+            
+            if (DateTime.TryParse(value, out DateTime dateTimeValue))
+            {
+                return new BsonDocument(prop, new BsonDocument(op, dateTimeValue));
+            }
 
             // If the value is a string, it will be enclosed in double quotes
             value = value.Trim('"');
